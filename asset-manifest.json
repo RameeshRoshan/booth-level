@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/booth-level/static/css/main.de994ed7.css",
+    "main.js": "/booth-level/static/js/main.93fc7307.js",
+    "static/js/453.c85ce8fa.chunk.js": "/booth-level/static/js/453.c85ce8fa.chunk.js",
+    "index.html": "/booth-level/index.html",
+    "main.de994ed7.css.map": "/booth-level/static/css/main.de994ed7.css.map",
+    "main.93fc7307.js.map": "/booth-level/static/js/main.93fc7307.js.map",
+    "453.c85ce8fa.chunk.js.map": "/booth-level/static/js/453.c85ce8fa.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.de994ed7.css",
+    "static/js/main.93fc7307.js"
+  ]
+}
