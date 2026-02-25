@@ -39,12 +39,12 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
     setError("");
     
     if (!booth) {
-      setError("Booth number is required");
+      setError("ബൂത്ത് നമ്പർ ആവശ്യമാണ്");
       return;
     }
 
     if (!phone) {
-      setError("Mobile number is required");
+      setError("മൊബൈൽ നമ്പർ ആവശ്യമാണ്");
       return;
     }
 
@@ -61,7 +61,7 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
       setProfileExists(true);
       boothUpdate && boothUpdate(booth);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to create profile";
+      const errorMsg = err instanceof Error ? err.message : "പ്രൊഫൈൽ സൃഷ്ടിക്കാൻ കഴിഞ്ഞില്ല";
       setError(`Error: ${errorMsg}`);
       console.error("Profile creation error:", err);
     }
@@ -71,32 +71,32 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
     try {
       await signOut(auth);
     } catch (err) {
-      setError("Failed to logout");
+      setError("ലോഗൗട്ട് ചെയ്യാൻ കഴിഞ്ഞില്ല");
       console.error("Logout error:", err);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>ലോഡുചെയ്യുന്നു...</div>;
 
   if (profileExists) {
     return (
       <div style={{ padding: 20, textAlign: "center" }}>
         <div style={{ backgroundColor: "#ccffcc", color: "#00cc00", padding: 20, borderRadius: 5, marginBottom: 20 }}>
-          <h2 style={{ margin: "0 0 10px 0" }}>✓ Successfully Logged In</h2>
+          <h2 style={{ margin: "0 0 10px 0" }}>✓ വിജയകരമായി ലോഗിൻ ചെയ്തു</h2>
           {/* <p style={{ margin: 0 }}>Welcome! You are ready for data entry.</p> */}
         </div>
         <div style={{ marginTop: 20 }}>
-          <p><strong>Name:</strong> {user.displayName || "N/A"}</p>
-          <p><strong>Phone:</strong> {phone}</p>
-          <p><strong>Booth Number:</strong> {booth}</p>
+          <p><strong>പേര്:</strong> {user.displayName || "N/A"}</p>
+          <p><strong>ഫോൺ:</strong> {phone}</p>
+          <p><strong>ബൂത്ത് നമ്പർ:</strong> {booth}</p>
           {/* <p><strong>User ID:</strong> {user.uid}</p> */}
         </div>
 
         <div style={{ marginTop: 30, padding: 15, backgroundColor: "#f0f0f0", borderRadius: 5 }}>
-          <h3 style={{ margin: "0 0 10px 0" }}>Change Booth Number</h3>
+          <h3 style={{ margin: "0 0 10px 0" }}>ബൂത്ത് നമ്പർ മാറ്റുക</h3>
           <input
             type="text"
-            placeholder="New Booth Number"
+            placeholder="പുതിയ ബൂത്ത് നമ്പർ"
             value={booth}
             onChange={(e) => setBooth(e.target.value)}
             style={{ 
@@ -124,7 +124,7 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
               fontWeight: "600"
             }}
           >
-            Update Booth
+            ബൂത്ത് അപ്ഡേറ്റ് ചെയ്യുക
           </button>
         </div>
 
@@ -142,15 +142,15 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
             fontSize: 16
           }}
         >
-          Logout
+          ലോഗൗട്ട്
         </button>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Signup</h2>
+    <div className="p-5 text-center pt-10">
+      <h2>നിങ്ങളുടെ ബൂത്ത് നമ്പർ</h2>
 
       {error && (
         <div style={{ backgroundColor: "#ffcccc", color: "#cc0000", padding: 15, marginBottom: 20, borderRadius: 5 }}>
@@ -161,7 +161,7 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
       {!phone && (
         <input
           type="tel"
-          placeholder="Mobile Number"
+          placeholder="മൊബൈൽ നമ്പർ"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           style={{ width: "100%", padding: 15, marginBottom: 20, boxSizing: "border-box" }}
@@ -173,7 +173,7 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
 
       <input
         type="text"
-        placeholder="Booth Number"
+        placeholder="ബൂത്ത് നമ്പർ"
         value={booth}
         onChange={(e) => setBooth(e.target.value)}
         style={{ width: "100%", padding: 15, marginBottom: 20, boxSizing: "border-box" }}
@@ -183,33 +183,16 @@ const Signup: React.FC<SignupProps> = ({ user, boothUpdate }) => {
 
       <button
         onClick={createProfile}
-        style={{
-          width: "100%",
-          padding: 15,
-          backgroundColor: "green",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: 5
-        }}
+        className="w-full my-4 p-4 bg-gradient-to-br from-[#1b5e20] to-[#4caf50] text-white border-none cursor-pointer rounded-md shadow-[2px_8px_6px_rgba(129,199,132,0.5)]"
       >
-        Continue
+        തുടരുക
       </button>
 
       <button
         onClick={handleLogout}
-        style={{
-          width: "100%",
-          padding: 15,
-          backgroundColor: "#cc0000",
-          color: "white",
-          border: "none",
-          cursor: "pointer",
-          borderRadius: 5,
-          marginTop: 10
-        }}
+        className="w-full p-4 bg-[#cc0000] text-white border-none cursor-pointer rounded-md mt-3 shadow-[2px_4px_8px_rgba(204,0,0,0.4)]"
       >
-        Logout
+        ലോഗൗട്ട്
       </button>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { generateExcelCSV, downloadCSV, HouseholdRecord } from "../services/dataExport";
+import { BOOTH_NUMBERS } from "../constants/boothNumbers";
 
 const AdminDashboard: React.FC = () => {
   const [submissionCount, setSubmissionCount] = useState<number>(0);
@@ -43,16 +44,11 @@ const AdminDashboard: React.FC = () => {
       filtered = filtered.filter(r => r.boothNumber === agentBoothFilter);
     }
     if (householdBoothFilter !== "all") {
-      filtered = filtered.filter(r => r.boothNumber === householdBoothFilter);
+      filtered = filtered.filter(r => r.boothNumberField === householdBoothFilter);
     }
     setRecords(filtered);
     setSubmissionCount(filtered.length);
   }, [allRecords, agentBoothFilter, householdBoothFilter]);
-
-  // Get unique booth numbers for filters
-  const agentBoothNumbers = Array.from(new Set(allRecords.map(r => r.boothNumber))).filter(Boolean);
-  // Use boothNumberField for household booth filter
-  const householdBoothNumbers = Array.from(new Set(allRecords.map(r => r.boothNumberField))).filter(Boolean);
 
   if (loading) return <div>റിപ്പോർട്ട് ലോഡുചെയ്യുന്നു...</div>;
   const handleExport = () => {
@@ -61,32 +57,31 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="text-[#1f4386]">
       <h2>Admin Report</h2>
-      <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-        <div>
+      <div className="flex flex-row justify-between mb-6">
+        <div className="  flex flex-col">
           <label>Agent Booth Number: </label>
-          <select value={agentBoothFilter} onChange={e => setAgentBoothFilter(e.target.value)}>
-            <option value="all">All</option>
-            {agentBoothNumbers.map(booth => (
-              <option key={booth} value={booth}>{booth}</option>
+          <select value={agentBoothFilter} onChange={e => setAgentBoothFilter(e.target.value)} className="w-16 text-[#1f4386]">
+            <option value="all" >All</option>
+            {BOOTH_NUMBERS.map(booth => (
+              <option key={booth} value={booth} >{booth}</option>
             ))}
           </select>
         </div>
-        <div>
+        <div  className="  flex flex-col">
           <label>Household Booth Number: </label>
-          <select value={householdBoothFilter} onChange={e => setHouseholdBoothFilter(e.target.value)}>
+          <select value={householdBoothFilter} onChange={e => setHouseholdBoothFilter(e.target.value)} className="w-16 text-[#1f4386]">
             <option value="all">All</option>
-            {householdBoothNumbers.map(booth => (
+            {BOOTH_NUMBERS.map(booth => (
               <option key={booth} value={booth}>{booth}</option>
             ))}
           </select>
-          <small style={{ color: '#888', marginLeft: 8 }}>Uses boothNumberField</small>
         </div>
       </div>
-      <p>Total Submissions: <strong>{submissionCount}</strong></p>
+      <h2>Total Submissions: <strong>{submissionCount}</strong></h2>
       <button
-        style={{ marginTop: 16, padding: "8px 16px", background: "#2e7d32", color: "white", border: "none", borderRadius: 6, cursor: "pointer", fontWeight: 600 }}
+        className="mt-4 px-12 w-1/2 pb-2 pt-4 bg-[#1f4386] text-white border-none rounded-md cursor-pointer font-semibold shadow-[2px_4px_10px_rgba(31,67,134,0.4)]"
         onClick={handleExport}
         disabled={records.length === 0}
       >

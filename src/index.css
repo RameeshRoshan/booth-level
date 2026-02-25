@@ -1,6 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Fonts */
+@font-face {
+  font-family: 'Anugraha';
+  src: url('./assets/fonts/Anugraha-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('./assets/fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Mobile-First Global Styles */
 * {
   box-sizing: border-box;
+}
+
+/* Remove default focus outline */
+input:focus,
+button:focus,
+select:focus,
+textarea:focus {
+  outline: none;
 }
 
 html {
@@ -10,7 +39,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Bebas Neue', 'Anugraha', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -28,6 +57,15 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Language-specific font classes */
+.font-malayalam {
+  font-family: 'Anugraha', sans-serif;
+}
+
+.font-english {
+  font-family: 'Bebas Neue', sans-serif;
 }
 
 /* Mobile-First Responsive Typography */
@@ -74,14 +112,6 @@ select {
   border-radius: 8px;
   width: 100%;
   font-family: inherit;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: #2e7d32;
-  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
 }
 
 /* Tablet and above */

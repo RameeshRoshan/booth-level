@@ -6,10 +6,12 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
+import { isValidBoothNumber } from "../constants/boothNumbers";
 
 // Constants
 const ERROR_MESSAGES = {
   boothRequired: "Booth number is required",
+  boothInvalid: "സാധുവായ ബൂത്ത് നമ്പർ നൽകുക (001-188)",
   phoneRequired: "Mobile number is required",
   failedToFetch: "Error fetching profile",
   failedToUpdate: "Failed to update booth",
@@ -83,6 +85,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onBoothChange }) => {
       return;
     }
 
+    if (!isValidBoothNumber(state.booth.trim())) {
+      setState((prev) => ({ ...prev, error: ERROR_MESSAGES.boothInvalid }));
+      return;
+    }
+
     try {
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
@@ -136,9 +143,9 @@ const Profile: React.FC<ProfileProps> = ({ user, onBoothChange }) => {
 
   return (
     <div className="w-full max-w-[500px] mx-auto p-4">
-      <div style={styles.header}>
-        <h2 style={styles.title}>👤 ഉപയോക്തൃ പ്രൊഫൈൽ</h2>
-      </div>
+      {/* <div className="bg-linear-to-br from-[#1F4386] to-[#0697C7] rounded-lg text-white text-center">
+        <h5 style={styles.title}>ഉപയോക്തൃ പ്രൊഫൈൽ</h5>
+      </div> */}
 
       {state.error && (
         <div style={styles.error}>
@@ -152,11 +159,14 @@ const Profile: React.FC<ProfileProps> = ({ user, onBoothChange }) => {
         </div>
       )}
 
-      <div style={styles.profileCard}>
+      <div 
+      // className="bg-linear-to-br from-[#1F4386] to-[#0697C7] rounded-lg text-white text-center"
+      style={styles.profileCard}
+       >
         <div style={styles.infoSection}>
           <h3 style={styles.sectionTitle}>അക്കൗണ്ട് വിവരങ്ങൾ</h3>
           <div style={styles.infoRow}>
-            <span style={styles.label}>ഫോൺ:</span>
+            <span style={styles.label}>ഫോൺ നമ്പർ:</span>
             <span style={styles.value}>{state.phone}</span>
           </div>
           <div style={styles.infoRow}>
@@ -176,11 +186,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onBoothChange }) => {
           </div>
         </div>
 
-        {!editMode && (
+        {/* {!editMode && (
           <button onClick={handleLogout} style={styles.logoutButton}>
             🚪 ലോഗൗട്ട്
           </button>
-        )}
+        )} */}
 
         {editMode && (
           <div style={styles.changeBoothSection}>
@@ -196,11 +206,12 @@ const Profile: React.FC<ProfileProps> = ({ user, onBoothChange }) => {
               lang="ml"
               inputMode="text"
             />
-            <button onClick={updateBooth} style={styles.updateButton}>
+            <button onClick={updateBooth} style={styles.updateButton} className="w-full p-3 text-white border-none rounded-md cursor-pointer text-sm font-semibold mb-[10px] bg-linear-to-br from-[#1b5e20] to-[#4caf50] shadow-[2px_8px_6px_rgba(129,199,132,0.5)]">
               അപ്ഡേറ്റ് ചെയ്യുക
             </button>
             <button
               onClick={() => setEditMode(false)}
+              className="shadow-[2px_8px_10px_rgba(136,136,136,0.3)]"
               style={{ ...styles.logoutButton, backgroundColor: '#888', marginTop: 8 }}
             >
               റദ്ദാക്കുക
@@ -208,6 +219,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onBoothChange }) => {
           </div>
         )}
       </div>
+      {!editMode && (
+        <button onClick={handleLogout} className="w-full p-3 bg-[#d32f2f] text-white border-none rounded-md cursor-pointer text-sm font-semibold shadow-[0_8px_10px_rgba(211,47,47,0.35)]">
+          ലോഗൗട്ട്
+        </button>
+      )}
     </div>
   );
 };
@@ -259,9 +275,9 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: "16px",
   },
   infoSection: {
-    marginBottom: "20px",
-    paddingBottom: "16px",
-    borderBottom: "1px solid #e0e0e0",
+    // marginBottom: "20px",
+    // paddingBottom: "16px",
+    // borderBottom: "1px solid #e0e0e0",
   },
   sectionTitle: {
     margin: "0 0 12px 0",
@@ -310,7 +326,6 @@ const styles: Record<string, React.CSSProperties> = {
   updateButton: {
     width: "100%",
     padding: "12px",
-    backgroundColor: "#2e7d32",
     color: "white",
     border: "none",
     borderRadius: "6px",

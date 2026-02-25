@@ -1,5 +1,7 @@
 import React from "react";
 import { User } from "firebase/auth";
+import appIcon from "../assets/app_icon.png";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 interface LayoutProps {
   user: User | null;
@@ -18,41 +20,35 @@ const isPWA = () => {
 
 const Layout: React.FC<LayoutProps> = ({ user, children, title, onProfileClick, onProfileClose, role }) => {
   const headerStyle: React.CSSProperties = {
-    ...styles.header,
     paddingTop: isPWA() ? 36 : 12 // 24px extra only for PWA
   };
   return (
     <div style={styles.layoutContainer}>
-      <header style={headerStyle}>
+      <header style={headerStyle}
+        className="bg-white px-4 flex justify-between items-center shadow-[2px_0px_12px_rgba(28,122,191,0.45)] sticky top-0 z-[100] gap-3 flex-wrap">
         <div style={styles.headerLeft}>
-          <h1 style={styles.logo}>📋 Booth Level</h1>
-          {/* {title && <p style={styles.subtitle}>{title}</p>} */}
-          {/* Show role for testing */}
-          {user && typeof role === "string" && role && (
-            <span style={{ marginLeft: 16, fontWeight: 600, color: '#2e7d32' }}>Role: {role}</span>
-          )}
+          <img src={appIcon} className="w-16" alt="App Icon" />
         </div>
-        <div style={styles.headerRight}>
+        <div style={styles.headerRight} >    
           {user && onProfileClose && (
             <button
               onClick={onProfileClose}
-              style={styles.closeButton}
+              className="text-white bg-[#1C7ABF] rounded-lg shadow-[2px_2px_12px_rgba(28,122,191,0.45)]"
               title="Close Profile"
             >
-              ← പിൻവാങ്ങുക
+              ← തിരിച്ചു പോവുക
             </button>
           )}
           {user && !onProfileClose && (
             <button
               onClick={onProfileClick}
-              style={styles.profileButtonHeader}
             >
-              <span style={styles.userIcon}>👤</span>
+              <AccountCircleIcon className="text-[#1f4386]" fontSize="large"/>
             </button>
           )}
         </div>
       </header>
-      <main style={styles.mainContent}>{children}</main>
+      <main className="flex-1 p-4 w-full overflow-y-auto overflow-x-hidden">{children}</main>
     </div>
   );
 };
@@ -64,20 +60,6 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: "100vh",
     width: "100%",
     backgroundColor: "#f5f5f5",
-  },
-  header: {
-    backgroundColor: "white",
-    borderBottom: "2px solid #2e7d32",
-    padding: "36px 16px 12px 16px", // 24px top padding added
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    gap: "12px",
-    flexWrap: "wrap",
   },
   headerLeft: {
     display: "flex",
@@ -105,33 +87,6 @@ const styles: Record<string, React.CSSProperties> = {
   headerRight: {
     display: "flex",
     alignItems: "center",
-  },
-  profileButtonHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    padding: "8px 12px",
-    backgroundColor: "#2e7d32",
-    color: "white",
-    border: "none",
-    borderRadius: "20px",
-    cursor: "pointer",
-    fontSize: "12px",
-    fontWeight: "600",
-    transition: "background-color 0.3s ease",
-    minHeight: "36px",
-  },
-  closeButton: {
-    padding: "8px 16px",
-    backgroundColor: "#2e7d32",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "600",
-    transition: "background-color 0.3s ease",
-    minHeight: "36px",
   },
   userIcon: {
     fontSize: "16px",

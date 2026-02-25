@@ -12,10 +12,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { Timestamp } from "firebase/firestore";
+import { isValidBoothNumber } from "../constants/boothNumbers";
 
 // Constants
 const FORM_LABELS = {
-  householdName: "പരിവാര അംഗത്തിന്റെ പേര്",
+  householdName: "അംഗത്തിന്റെ പേര്",
   phoneNumber: "ഫോൺ നമ്പർ",
   issues: "പ്രശ്നങ്ങൾ",
   boothNumberField: "ബൂത്ത് നമ്പർ",
@@ -28,6 +29,7 @@ const VALIDATION_MESSAGES = {
   phoneNumberMinLength: "ഫോൺ നമ്പർ കുറഞ്ഞത് 10 അക്കമെങ്കിലും വേണം",
   issuesRequired: "പ്രശ്നങ്ങൾ/ആശങ്കകൾ വിശദീകരിക്കുക",
   boothNumberFieldRequired: "ബൂത്ത് നമ്പർ ആവശ്യമാണ്",
+  boothNumberFieldInvalid: "സാധുവായ ബൂത്ത് നമ്പർ നൽകുക (001-188)",
   areaRegionRequired: "പ്രദേശം/മേഖല ആവശ്യമാണ്",
 };
 
@@ -63,30 +65,71 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<MessageState | null>(null);
   const [submissionCount, setSubmissionCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Fetch today's submission count
   const fetchTodayCount = useCallback(async () => {
     try {
+      // Get today's date at midnight in local timezone
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      
+      const midnightTimestamp = Timestamp.fromDate(today);
+      
+      console.log("=== Today's Count Query ===");
+      console.log("Midnight date (local):", today.toString());
+      console.log("Midnight timestamp:", midnightTimestamp.toDate().toString());
+      console.log("Midnight timestamp (seconds):", midnightTimestamp.seconds);
 
+      // Query only by userId (no index required)
       const q = query(
         collection(db, "households"),
-        where("boothNumber", "==", boothNumber),
-        where("userId", "==", user.uid),
-        where("createdAt", ">=", Timestamp.fromDate(today))
+        where("userId", "==", user.uid)
       );
 
       const snapshot = await getDocs(q);
-      setSubmissionCount(snapshot.size);
+      
+      // Filter in JavaScript for today's entries
+      let todayCount = 0;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.createdAt) {
+          const docDate = data.createdAt.toDate();
+          console.log("Document createdAt:", docDate.toString());
+          
+          // Compare if document is from today
+          if (docDate >= today) {
+            todayCount++;
+          }
+        }
+      });
+      
+      console.log("Documents found for today:", todayCount);
+      setSubmissionCount(todayCount);
     } catch (err) {
       console.error("Error fetching submission count:", err);
     }
-  }, [user.uid, boothNumber]);
+  }, [user.uid]);
+
+  // Fetch total submission count (all time)
+  const fetchTotalCount = useCallback(async () => {
+    try {
+      const q = query(
+        collection(db, "households"),
+        where("userId", "==", user.uid)
+      );
+
+      const snapshot = await getDocs(q);
+      setTotalCount(snapshot.size);
+    } catch (err) {
+      console.error("Error fetching total count:", err);
+    }
+  }, [user.uid]);
 
   useEffect(() => {
     fetchTodayCount();
-  }, [fetchTodayCount]);
+    fetchTotalCount();
+  }, [fetchTodayCount, fetchTotalCount]);
 
   // Handle form input changes
   const handleChange = useCallback(
@@ -108,7 +151,10 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
     if (formData.phoneNumber.length < 10) {
       return VALIDATION_MESSAGES.phoneNumberMinLength;
     }
-    // boothNumberField is now optional
+    // Validate booth number if provided
+    if (formData.boothNumberField.trim() && !isValidBoothNumber(formData.boothNumberField.trim())) {
+      return VALIDATION_MESSAGES.boothNumberFieldInvalid;
+    }
     if (!formData.areaRegion.trim()) {
       return VALIDATION_MESSAGES.areaRegionRequired;
     }
@@ -141,6 +187,7 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
           userId: user.uid, // account submitting
           userName: user.displayName || "Unknown",
           userPhone: user.phoneNumber,
+          createdAt: serverTimestamp(), // Use serverTimestamp for consistency
           submittedAt: new Date().toISOString(), // explicit timestamp
         };
 
@@ -160,8 +207,11 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
           areaRegion: "",
         });
 
-        // Update count
-        await fetchTodayCount();
+        // Update count (wait a bit for server timestamp to be set)
+        setTimeout(async () => {
+          await fetchTodayCount();
+          await fetchTotalCount();
+        }, 500);
 
         // Clear success message after timeout
         setTimeout(() => setMessage(null), MESSAGE_CLEAR_TIMEOUT);
@@ -178,17 +228,17 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
         setLoading(false);
       }
     },
-    [validateForm, formData, boothNumber, user.uid, user.displayName, user.phoneNumber, fetchTodayCount]
+    [validateForm, formData, boothNumber, user.uid, user.displayName, user.phoneNumber, fetchTodayCount, fetchTotalCount]
   );
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className="w-full max-w-full rounded m-0 p-0 min-h-screen box-border">
+      <div className="text-white p-4 rounded-none text-center bg-linear-to-br from-[#1F4386] to-[#0697C7] inset-shadow-sm inset-shadow-[#1F4386]">
         <h2 style={styles.title}>പരിവാര വിവരങ്ങൾ</h2>
-        {/* <p style={styles.subtitle}>Household Data Entry</p> */}
-        <div style={styles.stats}>
+        <div className="flex justify-around mt-2 text-xs flex-wrap gap-2">
           <p>ബൂത്ത്: <strong>{boothNumber}</strong></p>
           <p>ഇന്നത്തെ എൻട്രികൾ: <strong>{submissionCount}</strong></p>
+          <p>ആകെ എൻട്രികൾ: <strong>{totalCount}</strong></p>
         </div>
       </div>
 
@@ -281,8 +331,8 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
 
         <button
           type="submit"
+          className="w-full p-[13px] text-base font-semibold bg-linear-to-br from-[#1b5e20] to-[#4caf50] shadow-[2px_8px_6px_rgba(129,199,132,0.5)] text-white border-none rounded-md cursor-pointer mt-2"
           style={{
-            ...styles.button,
             opacity: loading ? 0.6 : 1,
             cursor: loading ? "not-allowed" : "pointer"
           }}
@@ -296,23 +346,6 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
 };
 
 const styles = {
-  container: {
-    width: "100%",
-    maxWidth: "100%",
-    margin: 0,
-    padding: "0",
-    backgroundColor: "#f5f5f5",
-    minHeight: "100vh",
-    boxSizing: "border-box" as const
-  } as React.CSSProperties,
-  header: {
-    backgroundColor: "#2e7d32",
-    color: "white",
-    padding: "16px",
-    borderRadius: 0,
-    marginBottom: "24px",
-    textAlign: "center" as const
-  } as React.CSSProperties,
   title: {
     margin: "0 0 4px 0",
     fontSize: "18px"
@@ -321,13 +354,6 @@ const styles = {
     margin: "0 0 12px 0",
     fontSize: "12px",
     opacity: 0.9
-  } as React.CSSProperties,
-  stats: {
-    display: "flex",
-    justifyContent: "space-around",
-    marginTop: "8px",
-    fontSize: "12px",
-    flexWrap: "wrap" as const
   } as React.CSSProperties,
   message: {
     padding: "12px 16px",
@@ -372,18 +398,6 @@ const styles = {
     fontFamily: "inherit",
     resize: "vertical" as const,
     minHeight: "80px"
-  } as React.CSSProperties,
-  button: {
-    width: "100%",
-    padding: "13px",
-    fontSize: "16px",
-    fontWeight: "600",
-    backgroundColor: "#2e7d32",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    marginTop: "8px"
   } as React.CSSProperties,
   footer: {
     textAlign: "center" as const,
