@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import { User, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
-import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { isValidBoothNumber } from "../constants/boothNumbers";
 

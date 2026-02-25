@@ -191,7 +191,7 @@ const HouseholdForm: React.FC<HouseholdFormProps> = ({ user, boothNumber }) => {
           submittedAt: new Date().toISOString(), // explicit timestamp
         };
 
-        const docRef = await addDoc(collection(db, "households"), householdEntry);
+        await addDoc(collection(db, "households"), householdEntry);
 
         setMessage({
           type: "success",
